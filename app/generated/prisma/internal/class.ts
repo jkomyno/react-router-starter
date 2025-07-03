@@ -73,10 +73,10 @@ const config: runtime.GetPrismaClientConfig = {
 config.runtimeDataModel = JSON.parse("{\"models\":{\"Quotes\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"quote\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"kind\",\"kind\":\"enum\",\"type\":\"QuoteKind\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
 config.engineWasm = undefined
 config.compilerWasm = {
-  getRuntime: async () => await import("@prisma/client/runtime/query_compiler_bg.postgresql.mjs"),
+  getRuntime: async () => await import("./query_compiler_bg.postgresql.mjs"),
 
   getQueryCompilerWasmModule: async () => {
-    const { default: module } = await import("@prisma/client/runtime/query_compiler_bg.postgresql.wasm")
+    const { default: module } = await import("./query_compiler_bg.postgresql.wasm")
     return module
   }
 }

@@ -4,13 +4,13 @@
 // @ts-nocheck 
 /**
  * WARNING: This is an internal file that is subject to change!
- * 
+ *
  * 🛑 Under no circumstances should you import this file directly! 🛑
- * 
+ *
  * All exports from this file are wrapped under a `Prisma` namespace object in the client.ts file.
  * While this enables partial backward compatibility, it is not part of the stable public API.
- * 
- * If you are looking for your Models, Enums, and Input Types, please import them from the respective 
+ *
+ * If you are looking for your Models, Enums, and Input Types, please import them from the respective
  * model files in the `model` directory!
  */
 
@@ -92,12 +92,12 @@ export type PrismaVersion = {
 }
 
 /**
- * Prisma Client JS version: 6.12.0
- * Query Engine version: 8047c96bbd92db98a2abc7c9323ce77c02c89dbc
+ * Prisma Client JS version: 6.15.0-integration-push-pprzzpqvmyuv.1
+ * Query Engine version: 4d84597d45f23a11ea7673dd0d603d8aaa4a86b7
  */
 export const prismaVersion: PrismaVersion = {
-  client: "6.12.0",
-  engine: "8047c96bbd92db98a2abc7c9323ce77c02c89dbc"
+  client: "6.15.0-integration-push-pprzzpqvmyuv.1",
+  engine: "4d84597d45f23a11ea7673dd0d603d8aaa4a86b7"
 }
 
 /**
@@ -401,8 +401,8 @@ export type ModelName = (typeof ModelName)[keyof typeof ModelName]
 
 
 
-export interface TypeMapCb<ClientOptions = {}> extends runtime.Types.Utils.Fn<{extArgs: runtime.Types.Extensions.InternalArgs }, runtime.Types.Utils.Record<string, any>> {
-  returns: TypeMap<this['params']['extArgs'], ClientOptions extends { omit: infer OmitOptions } ? OmitOptions : {}>
+export interface TypeMapCb<GlobalOmitOptions = {}> extends runtime.Types.Utils.Fn<{extArgs: runtime.Types.Extensions.InternalArgs }, runtime.Types.Utils.Record<string, any>> {
+  returns: TypeMap<this['params']['extArgs'], GlobalOmitOptions>
 }
 
 export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> = {
@@ -555,7 +555,7 @@ export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
 
 
 /**
- * Field references 
+ * Field references
  */
 
 
@@ -662,16 +662,24 @@ export interface PrismaClientOptions {
   /**
    * @example
    * ```
-   * // Defaults to stdout
+   * // Shorthand for `emit: 'stdout'`
    * log: ['query', 'info', 'warn', 'error']
    * 
-   * // Emit as events
+   * // Emit as events only
    * log: [
-   *   { emit: 'stdout', level: 'query' },
-   *   { emit: 'stdout', level: 'info' },
-   *   { emit: 'stdout', level: 'warn' }
-   *   { emit: 'stdout', level: 'error' }
+   *   { emit: 'event', level: 'query' },
+   *   { emit: 'event', level: 'info' },
+   *   { emit: 'event', level: 'warn' }
+   *   { emit: 'event', level: 'error' }
    * ]
+   * 
+   * / Emit as events and log to stdout
+   * og: [
+   *  { emit: 'stdout', level: 'query' },
+   *  { emit: 'stdout', level: 'info' },
+   *  { emit: 'stdout', level: 'warn' }
+   *  { emit: 'stdout', level: 'error' }
+   * 
    * ```
    * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/logging#the-log-option).
    */
@@ -717,10 +725,15 @@ export type LogDefinition = {
   emit: 'stdout' | 'event'
 }
 
-export type GetLogType<T extends LogLevel | LogDefinition> = T extends LogDefinition ? T['emit'] extends 'event' ? T['level'] : never : never
-export type GetEvents<T extends any> = T extends Array<LogLevel | LogDefinition> ?
-  GetLogType<T[0]> | GetLogType<T[1]> | GetLogType<T[2]> | GetLogType<T[3]>
-  : never
+export type CheckIsLogLevel<T> = T extends LogLevel ? T : never;
+
+export type GetLogType<T> = CheckIsLogLevel<
+  T extends LogDefinition ? T['level'] : T
+>;
+
+export type GetEvents<T extends any[]> = T extends Array<LogLevel | LogDefinition>
+  ? GetLogType<T[number]>
+  : never;
 
 export type QueryEvent = {
   timestamp: Date
@@ -758,27 +771,8 @@ export type PrismaAction =
   | 'aggregate'
   | 'count'
   | 'runCommandRaw'
-  | 'findRaw' 
+  | 'findRaw'
   | 'groupBy'
-
-/**
- * These options are being passed into the middleware as "params"
- */
-export type MiddlewareParams = {
-  model?: ModelName
-  action: PrismaAction
-  args: any
-  dataPath: string[]
-  runInTransaction: boolean
-}
-
-/**
- * The `T` type makes sure, that the `return proceed` is not forgotten in the middleware implementation
- */
-export type Middleware<T = any> = (
-  params: MiddlewareParams,
-  next: (params: MiddlewareParams) => runtime.Types.Utils.JsPromise<T>,
-) => runtime.Types.Utils.JsPromise<T>
 
 /**
  * `PrismaClient` proxy available in interactive transactions.
